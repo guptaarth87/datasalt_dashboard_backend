@@ -110,12 +110,29 @@ def get_databytag(tag):
         continue
     temp_l=[]
     for k in range (0,len(l1)):
-       
        month=int(l1[k]['date'][5:7])
        temp_l.append(month)
     res=freq_res(temp_l)
+    
+    #second response
+    l2=[]
+    req=[]
+    for d in range(0,length):
+      if tag_ in patients[d]['tags']:
+        l2.append(patients[d])
+      else:
+        continue
+    for m in l1:
+       for _ in m['medication']:
+          req.append(_)
+   
+    req_frequency= collections.Counter(req)
     if res!=[]:
-       return {"response":res,"status":200}
+       return {"response":res,
+               "status":200,
+               "requres_data":req,
+               "medication_used_for_tag_frequency":dict(req_frequency)
+                }
     else:
         return {"response":"server error","status":404}
 
@@ -179,29 +196,7 @@ def get_databymedication(tag):
     else:
         return {"response":"server error","status":404}
 
-@app.route('/tag_search/<string:tag>',methods=['GET','POST'])
-def search_tag(tag):
-    tag_ = tag
-    l1=[]
-    req=[]
-    for j in range(0,length):
-      if tag_ in patients[j]['tags']:
-        l1.append(patients[j])
-      else:
-        continue
-    for k in l1:
-       for _ in k['medication']:
-          req.append(_)
-   
-    req_frequency= collections.Counter(req)
-    if req_frequency!=[]:
-      return {
-          "requres_data":req,
-          "medication_used_for_tag_frequency":dict(req_frequency),
-          "status":200
-      }
-    else:
-        return {"response":"server error","status":404}
+
    
 def fetch():
     users=mongo.db.Patients.find()
